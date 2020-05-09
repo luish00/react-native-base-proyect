@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 
 import com.android.build.OutputFile
+import groovy.json.JsonSlurper
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -77,8 +78,14 @@ import com.android.build.OutputFile
  * ]
  */
 
+// Load app.json
+def appJson = file("../../app.json")
+def app = new JsonSlurper().parseText(appJson.text)
+
 project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
+    devDisabledInQaDebug: false, //if true disabled yellow warnig alert
+    bundleInQaDebug: true,
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
@@ -129,11 +136,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.lunereactnative"
+        applicationId app.android.applicationId
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode app.android.versionCode
+        versionName app.android.versionName
     }
     splits {
         abi {
@@ -163,6 +170,25 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    // Specifies one flavor dimension.
+    flavorDimensions "version"
+    productFlavors {
+        dev {
+            applicationId "com.lunereactnative.dev"
+            resValue "string", "build_config_package", "com.lunereactnative"
+            dimension "version"
+        }
+        qa {
+            applicationId "com.lunereactnative.qa"
+            resValue "string", "build_config_package", "com.lunereactnative"
+            dimension "version"
+        }
+        prod {
+            applicationId "com.lunereactnative"
+            resValue "string", "build_config_package", "com.lunereactnative"
+            dimension "version"
+        }
+    }
 
     packagingOptions {
         pickFirst "lib/armeabi-v7a/libc++_shared.so"
@@ -174,6 +200,7 @@ android {
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
+            def appFileName = "lune"
             // For each separate APK per architecture, set a unique version code as described here:
             // https://developer.android.com/studio/build/configure-apk-splits.html
             def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
@@ -182,7 +209,7 @@ android {
                 output.versionCodeOverride =
                         versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
             }
-
+            output.outputFileName = appFileName + "-${variant.versionName}.apk"
         }
     }
 }

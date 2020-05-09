@@ -1,70 +1,71 @@
 import React from 'react';
-import {
-  Image,
-  KeyboardAvoidingView,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Dimensions, Image, Text, StyleSheet, View } from 'react-native';
 
-import AuthContext from '../../AuthContext';
-import { LoginFrom } from '../componets/login/loginFrom';
+import { ContainerView, SnackBar } from '../componets/common';
+import { LoginFrom } from '../componets/login/LoginFrom';
+import { useNavigationTrakcer } from '../componets/common/traking';
+import appjson from '../../app.json';
+import { COLORS } from '../assets/colors';
+
+const vh = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 30,
-    marginTop: 30,
-  },
-  loginButton: {
-    alignItems: 'center',
-    backgroundColor: 'blue',
-    height: 40,
+    flex: 1,
+    height: vh - 100,
     justifyContent: 'center',
   },
-  loginButtonText: {
-    color: '#fff',
-  },
+
   loginImagen: {
-    backgroundColor: 'blue',
+    alignSelf: 'center',
+    backgroundColor: COLORS.primaryColor,
     height: 100,
     marginBottom: 30,
+    resizeMode: 'center',
+    width: '100%',
   },
-  textInput: {
-    borderBottomColor: '#e8e8e8',
-    borderBottomWidth: 1,
-  },
-  textInputContainer: {
-    paddingBottom: 18,
-  },
+
   textSinUp: {
     color: '#4285f4',
     fontSize: 18,
     paddingTop: 15,
   },
+
+  version: {
+    alignSelf: 'flex-end',
+  },
 });
 
 class LoginScreen extends React.PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.navigationTracker = useNavigationTrakcer(props.navigation);
+  }
+
   render() {
-    const { navigation } = this.props;
-
     return (
-      <KeyboardAvoidingView
-        behavior="padding"
-        enabled
-        keyboardVerticalOffset={10}
-      >
-        <ScrollView keyboardShouldPersistTaps="always">
-          <View style={styles.container}>
-            <Image style={styles.loginImagen} />
+      <>
+        <SnackBar />
 
-            <LoginFrom context={this.context} navigation={navigation} />
+        <ContainerView>
+
+          <View style={styles.container}>
+            <View>
+              <Image
+                resizeMode="center"
+                style={styles.loginImagen}
+              />
+
+              <LoginFrom navigation={this.navigationTracker} />
+            </View>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+          <Text style={styles.version}>v {appjson.versionName}</Text>
+        </ContainerView>
+      </>
     );
   }
 }
-
-LoginScreen.contextType = AuthContext;
 
 export default LoginScreen;
