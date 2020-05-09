@@ -1,20 +1,13 @@
 import React from 'react';
-import { Image, StyleSheet, TouchableHighlight } from 'react-native';
-
-const styles = StyleSheet.create({
-  backButton: {
-    backgroundColor: 'red',
-    height: 30,
-    width: 30,
-  },
-});
+import { TouchableWithoutFeedback } from 'react-native';
+import { Icon } from 'react-native-elements';
 
 const DrawerLeftButton = (props) => {
   const { drawerProps: { navigation } } = props;
   return (
-    <TouchableHighlight onPress={navigation.toggleDrawer}>
-      <Image style={styles.backButton} />
-    </TouchableHighlight>
+    <TouchableWithoutFeedback onPress={navigation.toggleDrawer}>
+      <Icon name="menu" type="material-community" />
+    </TouchableWithoutFeedback>
   );
 };
 

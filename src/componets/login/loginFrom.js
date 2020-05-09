@@ -3,37 +3,65 @@ import {
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
-  View,
 } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { doLogin } from '../../actions';
 
-import { Input } from '../common/Input';
+import { COLORS } from '../../assets/colors';
+import { Input, TouchableButton } from '../common';
 import I18n from '../../i18n';
+import { isValidEmail } from '../../utils/common';
+import { Button } from '../common/traking';
 
 const styles = StyleSheet.create({
+  activityIndicator: {
+    alignItems: 'center',
+    color: COLORS.loading,
+  },
+
   container: {
     marginHorizontal: 30,
     marginTop: 30,
   },
 
+  errorColor: {
+    alignSelf: 'center',
+    color: COLORS.errorColor,
+    paddingTop: 22,
+  },
+
   loginButton: {
     alignItems: 'center',
-    backgroundColor: 'blue',
+    backgroundColor: COLORS.secondaryDarkColor,
+    borderRadius: 8,
+    height: 40,
+    justifyContent: 'center',
+  },
+
+  loginButtonDisabled: {
+    alignItems: 'center',
+    backgroundColor: COLORS.btnDisabled,
+    borderRadius: 8,
     height: 40,
     justifyContent: 'center',
   },
 
   loginButtonText: {
-    color: '#fff',
+    color: COLORS.buttonTextWhite,
     fontSize: 16,
   },
 
   loginImagen: {
-    backgroundColor: 'blue',
+    backgroundColor: COLORS.blue,
     height: 100,
     marginBottom: 30,
+  },
+
+  textAccount: {
+    alignSelf: 'center',
+    fontSize: 13,
+    paddingTop: 20,
   },
 
   textInputContainer: {
@@ -42,58 +70,82 @@ const styles = StyleSheet.create({
 
   textSinUp: {
     color: '#4285f4',
-    fontSize: 18,
-    paddingTop: 15,
+    fontSize: 13,
   },
+
 });
 
 const LoginFrom = (props) => {
+  const store = useSelector(({ session }) => session);
   const dispatch = useDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { t } = I18n;
 
   function goRegisterScreen() {
-    props.navigation.navigate('SignUp');
+    props.navigation.tag('Move to Sign up screen').navigate('Sign Up');
+  }
+
+  function isButtonEnabled() {
+    return (isValidEmail(email) && password && !store.loading);
   }
 
   function onLogIn() {
-    dispatch(doLogin({ email, password }));
+    if (isButtonEnabled()) {
+      dispatch(doLogin({ email, password }));
+    }
   }
 
   return (
     <>
       <Input
+        editable={!store.loading}
+        id="email"
         keyboardType="email-address"
         label={t('loginScreen.email')}
+        leftIcon="email"
         onChangeText={setEmail}
+        placeholder={t('loginScreen.emailPlaceholder')}
         returnKeyType="next"
         style={styles.textInputContainer}
         value={email}
       />
 
       <Input
+        editable={!store.loading}
+        id="password"
         label={t('loginScreen.password')}
+        leftIcon="lock"
         onChangeText={setPassword}
+        placeholder={t('loginScreen.password')}
         returnKeyType="go"
         secureTextEntry
         style={styles.textInputContainer}
         value={password}
       />
 
-      <TouchableWithoutFeedback onPress={onLogIn}>
-        <View style={styles.loginButton}>
-          <Text style={styles.loginButtonText}>
-            {t('loginScreen.login')}
-          </Text>
-        </View>
-      </TouchableWithoutFeedback>
+      <TouchableButton
+        disabled={!isButtonEnabled()}
+        id="btnLogin"
+        loading={store.loading}
+        onPress={onLogIn}
+        tag="Login with email"
+        text={t('loginScreen.login')}
+      />
 
-      <TouchableWithoutFeedback onPress={goRegisterScreen}>
-        <Text style={styles.textSinUp}>
-          {t('loginScreen.signUp')}
+      <Button id="btnSignUp" onPress={goRegisterScreen} tag="Sign up">
+        <Text style={styles.textAccount}>
+          {`${t('loginScreen.createAccount')} `}
+          <Text style={styles.textSinUp}>
+            {t('loginScreen.signUp')}
+          </Text>
         </Text>
-      </TouchableWithoutFeedback>
+      </Button>
+
+      <Text style={styles.errorColor}>
+        {store.errorLogin}
+      </Text>
+
     </>
   );
 };

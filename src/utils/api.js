@@ -14,27 +14,39 @@ function serializeForUri(obj = {}) {
 
 async function call(URL, data, method) {
   const token = await getStorageData('token');
+
   const headers = {
     authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   };
 
   try {
-    const requestData = {
+    const controller = new AbortController();
+
+    const options = {
       body: data && JSON.stringify(data),
       headers,
       method,
+      signal: controller.signal,
     };
-    const response = await fetch(`${BASE_IP}/${URL}`, requestData);
-    const res = await response.json();
+    const timeId = setTimeout(() => controller.abort(), 8000);
+    const request = await fetch(`${BASE_IP}/${URL}`, options);
 
-    return { isSuccess: true, ...res };
+    clearTimeout(timeId);
+
+    if (token && request.status === 401) {
+      // TODO: refresh token || log out
+      throw new Error('401');
+    }
+
+    const response = await request.json();
+    return { isSuccess: response.isValid, ...response };
   } catch (error) {
     return { error, isSuccess: false };
   }
 }
 
-export function get(dispatch, URL, params = {}) {
+export function get(URL, params = {}) {
   const queryParams = serializeForUri(params);
   const url = `${URL}?${queryParams}`;
 
@@ -45,7 +57,7 @@ export function post(URL, data, formData = false) {
   return call(URL, data, 'POST', formData);
 }
 
-export function put(URL, data, formData = false) {
+export function PUT(URL, data, formData = false) {
   return call(URL, data, 'PUT', formData);
 }
 

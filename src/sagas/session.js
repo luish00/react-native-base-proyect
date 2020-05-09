@@ -1,14 +1,9 @@
 import { call, put } from 'redux-saga/effects';
 
 import { post } from '../utils/api';
-import {
-  getStorageData,
-  generateUUID,
-  removeData,
-  storeData,
-  doNothing,
-} from '../utils';
-import { tokenLoaded } from '../actions';
+import { getStorageData, removeData, storeData } from '../utils';
+import { logInFail, showSnackBar, tokenLoaded } from '../actions';
+import I18n from '../i18n';
 
 export function* loadToken() {
   const token = yield getStorageData('token');
@@ -18,22 +13,28 @@ export function* loadToken() {
 
 export function* logOut() {
   yield call(removeData, 'token');
-}
-
-function* fakeLogin() {
-  const TOKEN = generateUUID();
-  yield call(storeData, { data: TOKEN, key: 'token' });
-  yield put(tokenLoaded({ token: TOKEN }));
+  yield call(removeData, 'userId');
+  yield call(removeData, 'name');
+  yield call(removeData, 'email');
 }
 
 export function* doLogin({ payload }) {
   const { email, password } = payload;
-  const res = yield call(post, 'login', { email, password });
+  const res = yield call(post, 'api/authapi/login', { email, password });
 
   if (res.isSuccess) {
-    doNothing();
+    const { name, token, userId } = res.data;
+
+    yield call(storeData, { data: token, key: 'token' });
+    yield call(storeData, { data: userId, key: 'userId' });
+    yield call(storeData, { data: name, key: 'name' });
+    yield call(storeData, { data: email, key: 'email' });
+
+    yield put(tokenLoaded({ email, name, token, userId }));
   } else {
-    // yield put(loginFail());
-    yield call(fakeLogin);
+    const error = res.message || I18n.t('loginScreen.networkError');
+
+    yield put(showSnackBar({ message: error }));
+    yield put(logInFail({ message: error }));
   }
 }
