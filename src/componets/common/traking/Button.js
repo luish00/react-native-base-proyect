@@ -1,7 +1,8 @@
 import React from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
+import { testId } from '../../../utils';
 
-const Button = ({ disabled = false, onPress, tag, ...rest }) => {
+const Button = ({ disabled = false, id = '', onPress, tag, ...rest }) => {
   function handleClick() {
     // TODO: add traking service
 
@@ -17,6 +18,7 @@ const Button = ({ disabled = false, onPress, tag, ...rest }) => {
   return (
     <TouchableWithoutFeedback
       {...rest}
+      {...testId(id)}
       disabled={disabled}
       onPress={handleClick}
     >

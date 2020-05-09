@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from './traking';
 import { COLORS } from '../../assets/colors';
+import { testId } from '../../utils';
 
 const styles = StyleSheet.create({
   disabledButton: {
@@ -29,6 +30,7 @@ const styles = StyleSheet.create({
 
 const TouchableButton = ({
   disabled = false,
+  id = '',
   loading = false,
   onPress,
   style = {},
@@ -39,7 +41,13 @@ const TouchableButton = ({
 }) => {
   function renderContentOrDefault() {
     if (loading) {
-      return <ActivityIndicator color="#fff" size="small" />;
+      return (
+        <ActivityIndicator
+          {...testId(`spinner-${id}`)}
+          color="#fff"
+          size="small"
+        />
+      );
     }
 
     return (
@@ -53,6 +61,7 @@ const TouchableButton = ({
     <Button
       {...rest}
       disabled={disabled || loading}
+      id={id}
       onPress={onPress}
       tag={tag}
     >

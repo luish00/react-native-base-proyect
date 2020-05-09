@@ -12,6 +12,7 @@ import { COLORS } from '../../assets/colors';
 import { Input, TouchableButton } from '../common';
 import I18n from '../../i18n';
 import { isValidEmail } from '../../utils/common';
+import { Button } from '../common/traking';
 
 const styles = StyleSheet.create({
   activityIndicator: {
@@ -99,6 +100,7 @@ const LoginFrom = (props) => {
     <>
       <Input
         editable={!store.loading}
+        id="email"
         keyboardType="email-address"
         label={t('loginScreen.email')}
         leftIcon="email"
@@ -111,6 +113,7 @@ const LoginFrom = (props) => {
 
       <Input
         editable={!store.loading}
+        id="password"
         label={t('loginScreen.password')}
         leftIcon="lock"
         onChangeText={setPassword}
@@ -123,20 +126,21 @@ const LoginFrom = (props) => {
 
       <TouchableButton
         disabled={!isButtonEnabled()}
+        id="btnLogin"
         loading={store.loading}
         onPress={onLogIn}
         tag="Login with email"
         text={t('loginScreen.login')}
       />
 
-      <TouchableWithoutFeedback onPress={goRegisterScreen}>
+      <Button id="btnSignUp" onPress={goRegisterScreen} tag="Sign up">
         <Text style={styles.textAccount}>
           {`${t('loginScreen.createAccount')} `}
           <Text style={styles.textSinUp}>
             {t('loginScreen.signUp')}
           </Text>
         </Text>
-      </TouchableWithoutFeedback>
+      </Button>
 
       <Text style={styles.errorColor}>
         {store.errorLogin}

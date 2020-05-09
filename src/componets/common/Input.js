@@ -6,6 +6,7 @@ import { COLORS } from '../../assets/colors';
 import { Shimmer } from './Shimmer';
 
 import I18n from '../../i18n';
+import { testId } from '../../utils';
 
 const styles = StyleSheet.create({
   container: {
@@ -54,6 +55,7 @@ const defaultErrors = {
 const Input = ({
   editable = true,
   errors = defaultErrors,
+  id = '',
   inpRef,
   onBlur,
   onError,
@@ -189,13 +191,14 @@ const Input = ({
                 ? COLORS.secondaryDarkColor : COLORS.gray,
             }]}
             value={value}
+            {...testId(id)}
           />
 
           {renderRightIcon()}
         </View>
       </Shimmer>
 
-      <Text style={labelError}>{error}</Text>
+      <Text style={labelError} {...testId(`error-${id}`)}>{error}</Text>
     </View>
   );
 };
